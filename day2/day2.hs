@@ -31,16 +31,32 @@ parseLine line = let
   pass = tokens !! 4
   in Line (toInt minL) (toInt maxL) (head char) pass
 
-validLine :: Line -> Bool
-validLine line = let
+validLine1 :: Line -> Bool
+validLine1 line = let
   count = countChars (letter line) (pass line)
   in (count >= minL line) && (count <= maxL line)
+
+validLine2 :: Line -> Bool
+validLine2 line = let
+  str = pass line
+  char = letter line
+  first = matchChar str (minL line - 1) char
+  second = matchChar str (maxL line - 1) char
+  in xor first second
+
+matchChar :: [Char] -> Int -> Char -> Bool
+matchChar str idx char
+  | idx < 0 || idx >= length str = False
+  | otherwise = str !! idx == char
 
 countChars :: Char -> [Char] -> Int
 countChars char str = length (filter (==char) str)
 
+xor :: Bool -> Bool -> Bool
+xor a b = (a || b) && not (a && b)
+
 process :: String -> Int
 process input = let
   lines = parseList input
-  valids = filter validLine lines
-  in length valids
+  valid = filter validLine2 lines
+  in length valid
