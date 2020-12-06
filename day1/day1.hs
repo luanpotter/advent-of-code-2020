@@ -5,17 +5,18 @@ import Data.Maybe
 main = do
   args <- getArgs
   content <- readFile (args !! 0)
-  print (process content)
+  print (process content 3)
 
-cartProd :: [a] -> [b] -> [(a, b)]
-cartProd as bs = [(a, b) | a <- as, b <- bs]
+cartProd :: [[a]] -> [[a]]
+cartProd [] = [[]]
+cartProd (xs:rest) = [x:ys | x <- xs, ys <- (cartProd rest)]
 
 parseList :: [Char] -> [Int]
 parseList input = (map (\x -> read x :: Int) (lines input))
 
-process :: String -> Int
-process input = let
+process :: String -> Int -> Int
+process input num = let
   numbers = parseList input
-  pairs = cartProd numbers numbers
-  pair = fromJust (find (\(x, y) -> x + y == 2020) pairs)
-  in (fst pair) * (snd pair)
+  tuples = cartProd (take num (repeat numbers))
+  tuple = fromJust (find (\x -> sum x == 2020) tuples)
+  in foldl1 (*) tuple
